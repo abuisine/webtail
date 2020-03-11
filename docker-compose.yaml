@@ -1,0 +1,22 @@
+version: '2.2'
+services:
+  logger:
+    image: alpine
+    scale: 3
+    volumes:
+      - logs:/logs
+    command: /bin/sh -c "while date; do sleep 1; done | tee /logs/$${HOSTNAME}.log"
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.6.1
+    volumes:
+      - logs:/logs
+      - ./resources/filebeat.docker.yml:/usr/share/filebeat/filebeat.yml:ro
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.6.1
+    volumes:
+      - ./resources/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+
+volumes:
+  logs:
